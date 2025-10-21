@@ -1,0 +1,33 @@
+# version: '3.8' # Устарело в Docker Compose v2
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: event-manager-db-dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eventdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - event-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: event-manager-redis-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - event-network
+    restart: unless-stopped
+
+volumes:
+  postgres_dev_data:
+
+networks:
+  event-network:
+    driver: bridge

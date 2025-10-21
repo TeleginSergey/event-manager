@@ -1,0 +1,70 @@
+# version: '3.8' # Устарело в Docker Compose v2
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: event-manager-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eventdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - event-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js Application
+  app:
+    build: .
+    container_name: event-manager-app
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: eventdb
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      JWT_EXPIRES_IN: 24h
+      PORT: 3000
+      BCRYPT_ROUNDS: 12
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX_REQUESTS: 100
+      ENCRYPTION_KEY: your-32-character-encryption-key
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - event-network
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+  # Redis for session storage (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: event-manager-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - event-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  event-network:
+    driver: bridge
