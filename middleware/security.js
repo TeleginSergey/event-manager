@@ -3,10 +3,9 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const xss = require('xss');
 
-// Настройка CORS
+
 const corsOptions = {
     origin: function (origin, callback) {
-        // В продакшене здесь нужно указать конкретные домены
         const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
             process.env.ALLOWED_ORIGINS.split(',') : 
             ['http://localhost:3000', 'http://localhost:3001'];
@@ -21,10 +20,10 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 
-// Настройка rate limiting
+
 const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 минут
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // лимит запросов
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
     message: {
         error: 'Слишком много запросов с этого IP, попробуйте позже.'
     },
@@ -32,17 +31,17 @@ const limiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Строгий rate limiting для аутентификации
+
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 минут
-    max: 5, // максимум 5 попыток входа
+    windowMs: 15 * 60 * 1000,
+    max: 5,
     message: {
         error: 'Слишком много попыток входа, попробуйте позже.'
     },
     skipSuccessfulRequests: true,
 });
 
-// Настройка Helmet для безопасности заголовков
+
 const helmetOptions = {
     contentSecurityPolicy: {
         directives: {
@@ -55,7 +54,7 @@ const helmetOptions = {
     crossOriginEmbedderPolicy: false
 };
 
-// Middleware для очистки XSS
+
 const xssClean = (req, res, next) => {
     if (req.body) {
         for (let key in req.body) {

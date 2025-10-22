@@ -1,6 +1,6 @@
 const { body, param, query, validationResult } = require('express-validator');
 
-// Middleware для обработки ошибок валидации
+
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -16,7 +16,7 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
-// Валидация для регистрации пользователя
+
 const validateUserRegistration = [
     body('name')
         .trim()
@@ -39,7 +39,7 @@ const validateUserRegistration = [
     handleValidationErrors
 ];
 
-// Валидация для входа пользователя
+
 const validateUserLogin = [
     body('email')
         .isEmail()
@@ -53,7 +53,7 @@ const validateUserLogin = [
     handleValidationErrors
 ];
 
-// Валидация для обновления пользователя
+
 const validateUserUpdate = [
     body('name')
         .optional()
@@ -79,7 +79,7 @@ const validateUserUpdate = [
     handleValidationErrors
 ];
 
-// Валидация для событий
+
 const validateEvent = [
     body('title')
         .trim()
@@ -109,7 +109,7 @@ const validateEvent = [
     handleValidationErrors
 ];
 
-// Валидация для комментариев
+
 const validateComment = [
     body('content')
         .trim()
@@ -123,7 +123,7 @@ const validateComment = [
     handleValidationErrors
 ];
 
-// Валидация для ID параметров
+
 const validateId = [
     param('id')
         .isInt({ min: 1 })
@@ -132,7 +132,7 @@ const validateId = [
     handleValidationErrors
 ];
 
-// Валидация для пагинации
+
 const validatePagination = [
     query('page')
         .optional()

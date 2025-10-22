@@ -2,10 +2,10 @@ const jwt = require('jsonwebtoken');
 const db = require('../models');
 const User = db.User;
 
-// Middleware для проверки JWT токена
+
 const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ 
@@ -43,7 +43,7 @@ const authenticateToken = async (req, res, next) => {
     }
 };
 
-// Middleware для проверки ролей
+// Пока нет ролей... (в бд не добавил, ждите некст версию)
 const requireRole = (roles) => {
     return (req, res, next) => {
         if (!req.user) {
@@ -63,7 +63,7 @@ const requireRole = (roles) => {
     };
 };
 
-// Middleware для проверки владельца ресурса
+
 const requireOwnership = (resourceModel, resourceIdParam = 'id') => {
     return async (req, res, next) => {
         try {
@@ -76,8 +76,6 @@ const requireOwnership = (resourceModel, resourceIdParam = 'id') => {
                 });
             }
             
-            // Проверяем, что пользователь является владельцем ресурса
-            // Для событий проверяем organizerId, для других ресурсов - userId
             const ownerField = resource.organizerId ? 'organizerId' : 'userId';
             if (resource[ownerField] && resource[ownerField] !== req.user.id) {
                 return res.status(403).json({ 

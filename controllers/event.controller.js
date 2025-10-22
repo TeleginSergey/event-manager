@@ -10,7 +10,7 @@ exports.create = async (req, res) => {
             title: req.body.title,
             description: req.body.description,
             date: req.body.date,
-            organizerId: req.user.id, // Используем ID аутентифицированного пользователя
+            organizerId: req.user.id,
             CategoryId: req.body.categoryId,
             LocationId: req.body.locationId,
         });
@@ -69,7 +69,7 @@ exports.findOne = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        // Используем ресурс из middleware requireOwnership
+
         const event = req.resource;
         
         await event.update(req.body);
@@ -81,7 +81,6 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
-        // Используем ресурс из middleware requireOwnership
         const event = req.resource;
         
         await event.destroy();

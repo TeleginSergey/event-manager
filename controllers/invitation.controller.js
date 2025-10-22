@@ -8,7 +8,7 @@ exports.create = async (req, res) => {
         const invitation = await Invitation.create({
             EventId: req.body.EventId,
             inviteeId: req.body.inviteeId,
-            status: "pending" // pending, accepted, declined for remember
+            status: "pending" // pending, accepted, declined
         });
         res.status(201).json(invitation);
     } catch (err) {

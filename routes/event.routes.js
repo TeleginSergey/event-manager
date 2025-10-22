@@ -5,11 +5,9 @@ const { authenticateToken, requireOwnership } = require("../middleware/auth");
 const { validateEvent, validateId, validatePagination } = require("../middleware/validation");
 const db = require("../models");
 
-// Публичные маршруты (только чтение)
 router.get("/", validatePagination, eventController.findAll);
 router.get("/:id", validateId, eventController.findOne);
 
-// Защищенные маршруты
 router.post("/", authenticateToken, validateEvent, eventController.create);
 router.put("/:id", authenticateToken, validateId, validateEvent, requireOwnership(db.Event, 'id'), eventController.update);
 router.delete("/:id", authenticateToken, validateId, requireOwnership(db.Event, 'id'), eventController.delete);

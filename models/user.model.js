@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         timestamps: true,
-        paranoid: true, // Включаем мягкое удаление
+        paranoid: true,
         indexes: [
             {
                 unique: true,
@@ -76,14 +76,13 @@ module.exports = (sequelize, DataTypes) => {
         ]
     });
 
-    // Метод для проверки, заблокирован ли аккаунт
+
     User.prototype.isLocked = function() {
         return !!(this.lockedUntil && this.lockedUntil > Date.now());
     };
 
-    // Метод для инкремента попыток входа
+
     User.prototype.incLoginAttempts = function() {
-        // Если у нас есть предыдущая попытка и она истекла, начнем с 1
         if (this.lockedUntil && this.lockedUntil < Date.now()) {
             return this.update({
                 loginAttempts: 1,
@@ -93,15 +92,13 @@ module.exports = (sequelize, DataTypes) => {
         
         const updates = { loginAttempts: this.loginAttempts + 1 };
         
-        // Блокируем аккаунт после 5 неудачных попыток на 2 часа
         if (this.loginAttempts + 1 >= 5 && !this.isLocked()) {
-            updates.lockedUntil = Date.now() + 2 * 60 * 60 * 1000; // 2 часа
+            updates.lockedUntil = Date.now() + 2 * 60 * 60 * 1000;
         }
         
         return this.update(updates);
     };
 
-    // Метод для сброса попыток входа
     User.prototype.resetLoginAttempts = function() {
         return this.update({
             loginAttempts: 0,

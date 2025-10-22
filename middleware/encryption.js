@@ -1,14 +1,9 @@
 const crypto = require('crypto');
 
-// Генерируем случайный ключ для шифрования (в продакшене должен быть в переменных окружения)
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || crypto.randomBytes(32);
 const ALGORITHM = 'aes-256-gcm';
 
-/**
- * Шифрует данные
- * @param {string} text - Текст для шифрования
- * @returns {string} - Зашифрованная строка в формате base64
- */
+
 function encrypt(text) {
     if (!text) return text;
     
@@ -21,23 +16,17 @@ function encrypt(text) {
     
     const authTag = cipher.getAuthTag();
     
-    // Объединяем iv, authTag и зашифрованные данные
     const combined = Buffer.concat([iv, authTag, Buffer.from(encrypted, 'hex')]);
     return combined.toString('base64');
 }
 
-/**
- * Расшифровывает данные
- * @param {string} encryptedData - Зашифрованная строка в формате base64
- * @returns {string} - Расшифрованный текст
- */
+
 function decrypt(encryptedData) {
     if (!encryptedData) return encryptedData;
     
     try {
         const combined = Buffer.from(encryptedData, 'base64');
         
-        // Извлекаем компоненты
         const iv = combined.slice(0, 16);
         const authTag = combined.slice(16, 32);
         const encrypted = combined.slice(32);
@@ -56,9 +45,7 @@ function decrypt(encryptedData) {
     }
 }
 
-/**
- * Middleware для автоматического шифрования чувствительных полей
- */
+
 const encryptSensitiveFields = (fields) => {
     return (req, res, next) => {
         if (req.body) {
@@ -72,9 +59,7 @@ const encryptSensitiveFields = (fields) => {
     };
 };
 
-/**
- * Middleware для автоматического расшифровки чувствительных полей
- */
+
 const decryptSensitiveFields = (fields) => {
     return (req, res, next) => {
         if (req.body) {
@@ -88,12 +73,7 @@ const decryptSensitiveFields = (fields) => {
     };
 };
 
-/**
- * Хеширует данные с солью
- * @param {string} data - Данные для хеширования
- * @param {string} salt - Соль (опционально)
- * @returns {string} - Хеш
- */
+
 function hashData(data, salt = null) {
     if (!data) return data;
     
@@ -102,12 +82,7 @@ function hashData(data, salt = null) {
     return `${actualSalt}:${hash}`;
 }
 
-/**
- * Проверяет хеш
- * @param {string} data - Данные для проверки
- * @param {string} hashedData - Хешированные данные
- * @returns {boolean} - Результат проверки
- */
+
 function verifyHash(data, hashedData) {
     if (!data || !hashedData) return false;
     

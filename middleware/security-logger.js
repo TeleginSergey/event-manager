@@ -1,18 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-// Создаем директорию для логов, если её нет
 const logDir = path.join(__dirname, '../logs');
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
 }
 
-/**
- * Логирует события безопасности
- * @param {string} level - Уровень события (info, warn, error)
- * @param {string} message - Сообщение
- * @param {object} metadata - Дополнительные данные
- */
+
 function logSecurityEvent(level, message, metadata = {}) {
     const timestamp = new Date().toISOString();
     const logEntry = {
@@ -29,20 +23,15 @@ function logSecurityEvent(level, message, metadata = {}) {
     const logFile = path.join(logDir, `security-${new Date().toISOString().split('T')[0]}.log`);
     const logLine = JSON.stringify(logEntry) + '\n';
     
-    // Асинхронная запись в лог
     fs.appendFile(logFile, logLine, (err) => {
         if (err) {
             console.error('Ошибка записи в лог безопасности:', err);
         }
     });
-    
-    // Также выводим в консоль для разработки
+
     console.log(`[SECURITY ${level.toUpperCase()}] ${message}`, metadata);
 }
 
-/**
- * Middleware для логирования попыток входа
- */
 const logAuthAttempts = (req, res, next) => {
     const originalSend = res.send;
     
@@ -71,14 +60,11 @@ const logAuthAttempts = (req, res, next) => {
     next();
 };
 
-/**
- * Middleware для логирования подозрительной активности
- */
+
 const logSuspiciousActivity = (req, res, next) => {
     const ip = req.ip || req.connection.remoteAddress;
     const userAgent = req.get('User-Agent');
-    
-    // Проверяем на подозрительные паттерны
+
     const suspiciousPatterns = [
         /script/i,
         /<script/i,

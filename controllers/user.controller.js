@@ -7,36 +7,29 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
         
-        // Находим пользователя по email
         const user = await User.findOne({ where: { email } });
         if (!user) {
             return res.status(401).json({ error: 'Неверный email или пароль' });
         }
         
-        // Проверяем, не заблокирован ли аккаунт
         if (user.isLocked()) {
             return res.status(423).json({ 
                 error: 'Аккаунт заблокирован из-за множественных неудачных попыток входа' 
             });
         }
         
-        // Проверяем, активен ли пользователь
         if (!user.isActive) {
             return res.status(401).json({ error: 'Аккаунт деактивирован' });
         }
         
-        // Проверяем пароль
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
-            // Увеличиваем счетчик неудачных попыток
             await user.incLoginAttempts();
             return res.status(401).json({ error: 'Неверный email или пароль' });
         }
         
-        // Сбрасываем счетчик попыток при успешном входе
         await user.resetLoginAttempts();
         
-        // Создаем JWT токен
         const token = jwt.sign(
             { id: user.id, email: user.email },
             process.env.JWT_SECRET || 'fallback-secret',
@@ -56,7 +49,6 @@ exports.login = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        // Проверяем, существует ли пользователь с таким email
         const existingUser = await User.findOne({ where: { email: req.body.email } });
         if (existingUser) {
             return res.status(400).json({ error: 'Пользователь с таким email уже существует' });
@@ -71,7 +63,6 @@ exports.create = async (req, res) => {
             password: hashedPassword,
         });
         
-        // Создаем JWT токен
         const token = jwt.sign(
             { id: user.id, email: user.email },
             process.env.JWT_SECRET || 'fallback-secret',
@@ -145,7 +136,6 @@ exports.updateProfile = async (req, res) => {
         const user = await User.findByPk(req.user.id);
         if (!user) return res.status(404).json({ error: "Пользователь не найден" });
 
-        // Если обновляется пароль, хешируем его
         if (req.body.password) {
             const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
             req.body.password = await bcrypt.hash(req.body.password, saltRounds);

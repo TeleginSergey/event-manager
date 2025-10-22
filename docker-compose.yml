@@ -1,7 +1,4 @@
-# version: '3.8' # Устарело в Docker Compose v2
-
 services:
-  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: event-manager-db
@@ -23,7 +20,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Node.js Application
   app:
     build: .
     container_name: event-manager-app
@@ -52,7 +48,6 @@ services:
     volumes:
       - ./logs:/app/logs
 
-  # Redis for session storage (optional)
   redis:
     image: redis:7-alpine
     container_name: event-manager-redis

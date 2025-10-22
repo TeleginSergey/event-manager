@@ -12,18 +12,18 @@ const {
 
 const app = express();
 
-// Базовые middleware безопасности
+
 app.use(helmet);
 app.use(cors);
 app.use(limiter);
 app.use(xssClean);
 
-// Middleware для логирования безопасности
+
 app.use(logAuthAttempts);
 app.use(logSuspiciousActivity);
 app.use(logAccess);
 
-// Парсинг JSON с ограничением размера
+
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -40,15 +40,15 @@ app.use("/api/comments", require("./routes/comment.routes"));
 
 app.get("/", (req, res) => res.send("Event manager API"));
 
-// Обработчик ошибок
+
 app.use(logErrors);
 
-// Обработчик 404
+
 app.use((req, res) => {
     res.status(404).json({ error: 'Маршрут не найден' });
 });
 
-// Обработчик глобальных ошибок
+
 app.use((err, req, res, next) => {
     console.error('Глобальная ошибка:', err);
     res.status(500).json({ 

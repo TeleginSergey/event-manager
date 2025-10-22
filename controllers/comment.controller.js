@@ -7,7 +7,7 @@ exports.create = async (req, res) => {
         const comment = await Comment.create({
             content: req.body.content,
             EventId: req.body.eventId,
-            UserId: req.user.id // Используем ID аутентифицированного пользователя
+            UserId: req.user.id
         });
         res.status(201).json(comment);
     } catch (err) {
