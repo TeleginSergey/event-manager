@@ -1,62 +1,18 @@
 require('dotenv').config();
-const express = require("express");
-const bodyParser = require("body-parser");
-const db = require("./models");
-const { cors, limiter, helmet, xssClean } = require("./middleware/security");
-const { 
-    logAuthAttempts, 
-    logSuspiciousActivity, 
-    logErrors, 
-    logAccess 
-} = require("./middleware/security-logger");
+const { app, initializeDatabase } = require("./app");
 
-const app = express();
-
-
-app.use(helmet);
-app.use(cors);
-app.use(limiter);
-app.use(xssClean);
-
-
-app.use(logAuthAttempts);
-app.use(logSuspiciousActivity);
-app.use(logAccess);
-
-
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-
-db.sequelize.sync().then(() => {
-    console.log("Database synced");
-});
-
-app.use("/api/users", require("./routes/user.routes"));
-app.use("/api/events", require("./routes/event.routes"));
-app.use("/api/invitations", require("./routes/invitation.routes"));
-app.use("/api/categories", require("./routes/category.routes"));
-app.use("/api/locations", require("./routes/location.routes"));
-app.use("/api/comments", require("./routes/comment.routes"));
-
-app.get("/", (req, res) => res.send("Event manager API"));
-
-
-app.use(logErrors);
-
-
-app.use((req, res) => {
-    res.status(404).json({ error: 'Маршрут не найден' });
-});
-
-
-app.use((err, req, res, next) => {
-    console.error('Глобальная ошибка:', err);
-    res.status(500).json({ 
-        error: process.env.NODE_ENV === 'production' 
-            ? 'Внутренняя ошибка сервера' 
-            : err.message 
-    });
+initializeDatabase().catch((err) => {
+    console.error("❌ Failed to initialize database:", err.message);
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server started on port ${PORT}`);
+    console.log(`Listening on all interfaces (0.0.0.0:${PORT})`);
+});
+
+server.on('error', (err) => {
+    console.error(`[SERVER ERROR]`, err);
+});
+
+module.exports = server;

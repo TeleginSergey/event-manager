@@ -7,7 +7,7 @@ exports.create = async (req, res) => {
         const comment = await Comment.create({
             content: req.body.content,
             EventId: req.body.eventId,
-            UserId: req.user.id
+            authorId: req.user.id
         });
         res.status(201).json(comment);
     } catch (err) {
@@ -20,7 +20,7 @@ exports.findByEvent = async (req, res) => {
         const comments = await Comment.findAll({
             where: { EventId: req.params.eventId },
             include: [
-                { model: User, attributes: ['id', 'name', 'email'] }
+                { model: User, as: 'author', attributes: ['id', 'name', 'email'] }
             ],
             order: [['createdAt', 'DESC']]
         });

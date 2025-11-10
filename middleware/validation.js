@@ -124,11 +124,41 @@ const validateComment = [
 ];
 
 
+const validateInvitationCreate = [
+    body('EventId')
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage('EventId должен быть положительным числом'),
+    body('eventId')
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage('eventId должен быть положительным числом'),
+    body('inviteeId')
+        .isInt({ min: 1 })
+        .withMessage('inviteeId должен быть положительным числом'),
+    handleValidationErrors
+];
+
+
 const validateId = [
     param('id')
         .isInt({ min: 1 })
         .withMessage('ID должен быть положительным числом'),
     
+    handleValidationErrors
+];
+
+const validateEventIdParam = [
+    param('eventId')
+        .isInt({ min: 1 })
+        .withMessage('ID события должен быть положительным числом'),
+    handleValidationErrors
+];
+
+const validateUserIdParam = [
+    param('userId')
+        .isInt({ min: 1 })
+        .withMessage('ID пользователя должен быть положительным числом'),
     handleValidationErrors
 ];
 
@@ -155,5 +185,8 @@ module.exports = {
     validateEvent,
     validateComment,
     validateId,
+    validateEventIdParam,
+    validateUserIdParam,
+    validateInvitationCreate,
     validatePagination
 };

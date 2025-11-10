@@ -6,13 +6,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: eventdb
-    ports:
-      - "5432:5432"
+    network_mode: host
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - event-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -25,7 +22,7 @@ services:
     container_name: event-manager-app
     environment:
       NODE_ENV: production
-      DB_HOST: postgres
+      DB_HOST: localhost
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: eventdb
@@ -37,13 +34,10 @@ services:
       RATE_LIMIT_MAX_REQUESTS: 100
       ENCRYPTION_KEY: your-32-character-encryption-key
       ALLOWED_ORIGINS: http://localhost:3000,http://localhost:3001
-    ports:
-      - "3000:3000"
+    network_mode: host
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - event-network
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
@@ -51,15 +45,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: event-manager-redis
-    ports:
-      - "6379:6379"
-    networks:
-      - event-network
+    network_mode: host
     restart: unless-stopped
 
 volumes:
   postgres_data:
-
-networks:
-  event-network:
-    driver: bridge

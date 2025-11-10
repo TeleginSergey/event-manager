@@ -8,9 +8,14 @@ const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
             process.env.ALLOWED_ORIGINS.split(',') : 
-            ['http://localhost:3000', 'http://localhost:3001'];
+            ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8080'];
         
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        // Allow requests with no origin (like curl, Postman, mobile apps, same-origin)
+        if (!origin) {
+            return callback(null, true);
+        }
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -46,9 +51,10 @@ const helmetOptions = {
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
             imgSrc: ["'self'", "data:", "https:"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
         },
     },
     crossOriginEmbedderPolicy: false
